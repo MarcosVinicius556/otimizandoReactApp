@@ -1,11 +1,41 @@
-import {
+//import {
    //useState,
-   useRef
-   } from 'react'
+   //useRef
+   //} from 'react'
 import './App.css'
 import { Header } from './Header';
 
 import { useForm } from 'react-hook-form';
+
+/**
+ * Trabalhando com schema validation
+ */
+
+import { z } from 'zod';
+import { zodResolver } from '@hookform/resolvers/zod';
+
+/**
+ * Criando o objeto para validação
+ */
+const schema = z.object({
+  /**
+   * O zod fornece varias opções e tipos de validações
+   * para os componentes de um formulários, a seguir
+   * alguns exemplos
+   */
+  name: z.string().nonempty("O campo nome é obrigatório"),
+  email: z.string().email("Digite seu email").nonempty("O campo email é obrigatório"),
+  username: z.string()
+             .min(3, "O username deve ter pelo menos 3 caracteres")
+             .max(10, "O username deve ter menos 10 caracteres")
+             .nonempty("O campos username é obrigatório"),
+  telefone: z.string()
+             .refine((value) => /^{2} ?\d{9}$/.test(value), {//Aplicando um pattern através de regex
+              //Criando uma mensagem para quando não passar na validação do schema
+              message: "Digite um telefone no formato DD + 9 números"
+             }) 
+             .nonempty("Telefone é um campo obrigatório")
+});
 
 /**
  * Aqui foi decidido utilizar a abordagem de estados 
@@ -74,8 +104,19 @@ function App() {
    * useForm retorna 2 valores, "register" 
    * que seria a função para registrar o
    * componente que vamos "monitorar" os dados 
+   * 
+   * o useForm também pode receber por parâmetro um "resolver"
+   * que ao fazer submit irá validar os dados com o schema que
+   * criamos anteriormente
+   * 
+   * A mensagem de erro retornada pelo schema criado,
+   * pode ser acessada através da propriedade formState 
+   * do useForm, nela conseguimos acessar alguns dados 
+   * das inputs, como os erros citados anteriormente
    */
-  const{register, handleSubmit} = useForm();
+  const{register, handleSubmit, formState: { errors } } = useForm({
+    resolver: zodResolver(schema)
+  });
 
   /**
    * Qaundo passamos um método para o handleSubmit do hook-form
@@ -109,9 +150,11 @@ function App() {
            * - Register também recebe "options" como parâmetro, e com eles conseguimos,
            *   por exemplo, fazer validações nos campos que queremos que sejam obrigatórios
            **/
-          {...register("name", {required:true})}
+          {...register("name"/*, {required:true}*/)}
           id="name"
         />
+        {/**Renderizando uma mensagem de erro para quando um campo estiver fora do schema */}
+        {errors.name && (<p className='error'>{errors.name.message}</p>)} 
 
         <input
           type="text"
@@ -120,10 +163,11 @@ function App() {
           //ref={emailRef} (Removido para utilizar a lib React-Hook-Form)
           placeholder="Digite seu email..."
           className="input"
-         
-          {...register("email", {required:true})} 
+          {...register("email"/*, {required:true}*/)} 
           id="email"
         />
+        {/**Renderizando uma mensagem de erro para quando um campo estiver fora do schema */}
+        {errors.email && (<p className='error'>{errors.email.message}</p>)} 
 
         <input
           type="text"
@@ -132,9 +176,11 @@ function App() {
           //ref={usernameRef} (Removido para utilizar a lib React-Hook-Form)
           placeholder="Digite seu username..."
           className="input"
-          {...register("username", {required:true})} //Para utilizar o register, basta apenas dar um nome para o componente
+          {...register("username"/*, {required:true}*/)} //Para utilizar o register, basta apenas dar um nome para o componente
           id="username"
         />
+        {/**Renderizando uma mensagem de erro para quando um campo estiver fora do schema */}
+        {errors.username && (<p className='error'>{errors.username.message}</p>)} 
 
         {/* <textarea
           type="text"
@@ -156,6 +202,18 @@ function App() {
           <option value="admin">admin</option>
         </select> */}
 
+        <input
+          type="text"
+          // value={username}
+          // onChange={ (event) => setUsername(event.target.value) }
+          //ref={usernameRef} (Removido para utilizar a lib React-Hook-Form)
+          placeholder="Digite seu telefone..."
+          className="input"
+          {...register("telefone"/*, {required:true}*/)} //Para utilizar o register, basta apenas dar um nome para o componente
+          id="username"
+        />
+        {/**Renderizando uma mensagem de erro para quando um campo estiver fora do schema */}
+        {errors.telefone && (<p className='error'>{errors.telefone.message}</p>)} 
 
         <button className="button" type="submit">Enviar</button>
       </form>
