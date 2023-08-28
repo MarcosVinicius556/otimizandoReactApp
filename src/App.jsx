@@ -1,9 +1,11 @@
 import {
-   useState,
+   //useState,
    useRef
    } from 'react'
 import './App.css'
 import { Header } from './Header';
+
+import { useForm } from 'react-hook-form';
 
 /**
  * Aqui foi decidido utilizar a abordagem de estados 
@@ -14,6 +16,12 @@ import { Header } from './Header';
  * A abordagem que estava sendo utilizada antes pode ser chamada de 
  * "Controlled", onde utilizamos um evento como o "onChange" para 
  * verificar e alterar um estado a qualquer alteração que ele tenha
+ */
+/**
+ * Bibliotecas interessantes para criação de formulários:
+ * 
+ * - React Hook Form
+ * - Formik
  */
 function App() {
   /**
@@ -34,70 +42,108 @@ function App() {
    * Por estar com referência direta a um componente, esta referência 
    * carrega os dados do componente podendo assim substituir o "onChange"
    */
-  const nameRef = useRef(null);
-  const emailRef = useRef(null);
-  const usernameRef = useRef(null);
-  const descriptionRef = useRef(null);
+  //(Removido para utilizar a lib React-Hook-Form)
+  // const nameRef = useRef(null);
+  // const emailRef = useRef(null);
+  // const usernameRef = useRef(null);
+  // const descriptionRef = useRef(null);
   // const typeRef = useRef(null);
 
-  function handleSave(e){
-    e.preventDefault();
+  // function handleSave(e){
+  //   e.preventDefault();
    /* Acessando o valor da referência, current é
     * para pegar o estado atual do componente,
     * value seria o valor. ("?" é para somente
     * pegar quando tiver valor) 
     */
-    console.log({
-      name: nameRef.current?.value, 
-      email: emailRef.current?.value,
-      username: usernameRef.current?.value,
-      description: descriptionRef.current?.value,
-      // type: typeRef.current?.value,
-    })
-  }
+    // console.log({
+    //   name: nameRef.current?.value, 
+    //   email: emailRef.current?.value,
+    //   username: usernameRef.current?.value,
+    //   // description: descriptionRef.current?.value,
+    //   // type: typeRef.current?.value,
+    // })
+  // }
 
+  /**
+   * Utilizando a lib react-hook-form
+   * para trabalhar com formulários em react
+   */
+
+  /**
+   * useForm retorna 2 valores, "register" 
+   * que seria a função para registrar o
+   * componente que vamos "monitorar" os dados 
+   */
+  const{register, handleSubmit} = useForm();
+
+  /**
+   * Qaundo passamos um método para o handleSubmit do hook-form
+   * ele nos passa um parâmetro "data" que seria os itens do nosso formulário
+   */
+  function handleSave(data) {
+    console.log(data);
+  }
 
   return (
     <div className="container">
       <h1>React</h1>
       <Header/>
 
-      <form className="form" onSubmit={handleSave}>
+      {/**
+        * onSubmit={handleSave} --Removido
+        * Com a lib do react-hook-form, não mais passamos
+        * a nossa função de submit diretamente para o formulário,
+        * e sim a função que o hook nos fornece
+        */}
+      <form className="form" onSubmit={handleSubmit(handleSave)}>
         <input
           type="text"
           // value={name}
           // onChange={ (event) => setName(event.target.value) }
-          ref={nameRef} //Atrelando uma referência ao input
+          // ref={nameRef} //Atrelando uma referência ao input (Removido para utilizar a lib React-Hook-Form)
           placeholder="Digite seu nome..."
           className="input"
+           /**
+           * - Para utilizar o register, basta apenas dar um nome para o componente
+           * - Register também recebe "options" como parâmetro, e com eles conseguimos,
+           *   por exemplo, fazer validações nos campos que queremos que sejam obrigatórios
+           **/
+          {...register("name", {required:true})}
+          id="name"
         />
 
         <input
           type="text"
           // value={email}
           // onChange={ (event) => setEmail(event.target.value) }
-          ref={emailRef}
+          //ref={emailRef} (Removido para utilizar a lib React-Hook-Form)
           placeholder="Digite seu email..."
           className="input"
+         
+          {...register("email", {required:true})} 
+          id="email"
         />
 
         <input
           type="text"
           // value={username}
           // onChange={ (event) => setUsername(event.target.value) }
-          ref={usernameRef}
+          //ref={usernameRef} (Removido para utilizar a lib React-Hook-Form)
           placeholder="Digite seu username..."
           className="input"
+          {...register("username", {required:true})} //Para utilizar o register, basta apenas dar um nome para o componente
+          id="username"
         />
 
-        <textarea
+        {/* <textarea
           type="text"
           // value={description}
           // onChange={ (event) => setDescription(event.target.value) }
-          ref={descriptionRef}
-          placeholder="Digite sua descriçao..."
-          className="input"
-        ></textarea>
+           ref={descriptionRef}
+           placeholder="Digite sua descriçao..."
+           className="input"
+         ></textarea> */}
 
 
         {/* <select  
